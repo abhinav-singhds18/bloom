@@ -1,0 +1,63 @@
+import urllib
+import pyodbc
+import json
+import sqlalchemy as db
+import urllib
+import pandas as pd
+
+from creds import creds
+
+engine = db.create_engine('mssql+pyodbc://abhinav:9643933176@mydsn')
+print(engine)
+
+params = urllib.parse.quote_plus('Driver={SQL+Server+Native+Client+11.0};'
+                      'Server=ABHINAV-UG1-330;'
+                      'Database=test_db;'
+                      'Trusted_Connection=yes;')
+
+engine = db.create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
+connection = engine.connect()
+print(connection)
+metadata = db.MetaData()
+census = db.Table('tsdata', metadata, autoload=True, autoload_with=engine)
+
+print(census)
+print(census.columns.keys())
+#Equivalent to 'SELECT * FROM census'
+query = db.select([census])
+ResultProxy = connection.execute(query)
+
+ins = census.insert()
+print(str(ins))
+
+ResultSet = ResultProxy.fetchall()
+
+print(ResultSet[:3])
+
+
+with open('response.txt') as json_file:
+    datawr = json.load(json_file)
+    #print(data)
+    print(type(datawr))
+    #df = pd.DataFrame(datawr)
+    values_list = datawr['dataset_data']['data']
+    print(datawr['dataset_data']['data'])
+
+results = connection.execute(db.select([census])).fetchall()
+df = pd.DataFrame(results)
+df.columns = results[0].keys()
+df.head(4)
+
+# df1 = pd.DataFrame(datawr['dataset_data']['data'])
+#
+#
+# df1.to_sql(name='census', con=connection, if_exists='append', index=False)
+
+
+
+#connection.execute(census.insert(), datawr['data'])
+
+for line in datawr['dataset_data']['data']:
+    print(line)
+    # connection.execute(census.insert(), **line)
+
