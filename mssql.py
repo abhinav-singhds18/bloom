@@ -1,5 +1,6 @@
 import pyodbc
 import json
+import pandas as pd
 
 
 
@@ -19,9 +20,16 @@ with open('response.txt') as json_file:
     datawr = json.load(json_file)
     #print(data)
     print(type(datawr))
+    df = pd.DataFrame(datawr)
+    print(df)
     print(datawr['dataset_data']['data'])
 
 
+# sql = "INSERT INTO tsdata VALUES (?, ? ,?,?,?,?,?,?,?,?,?,?,?)"
+#
+# number_of_rows = cursor.executemany(sql, datawr['dataset_data']['data'])
+#
+# conn.commit()
 # cursor.execute('''DECLARE @json NVARCHAR(MAX)
 # SET @json =   %s
 #
@@ -46,4 +54,5 @@ cursor.execute('''
 # for row in cursor:
 #     print(row)
 
-
+for drivers in pyodbc.drivers():
+    print(drivers)
